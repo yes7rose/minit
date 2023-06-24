@@ -1,0 +1,29 @@
+[package]
+name = "minit"
+version = "0.4.0"
+authors = ["闫刚 <7470718@qq.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cash_core = { path = "../cashmere_core/cash_core" }
+entity = { path = "../cashmere_core/entity" }
+manage_define = { path = "../cashmere_core/manage_define" }
+define_utils = { path = "../cashmere_core/define_utils" }
+database = { path = "../cashmere_core/database" }
+configs = { path = "../cashmere_core/configs" }
+auth = { path = "../cashmere_core/auth" }
+cash_result = { path = "../cashmere_core/cash_result" }
+
+account_module = { path = "../account_module" }
+
+dependencies_sync = { path = "../cashmere_core/dependencies_sync", features = [
+  "mongodb",
+  "linked-hash-map",
+  "toml",
+  "futures",
+  "chrono",
+  "tokio",
+  "clap",
+] }

@@ -1,0 +1,7 @@
+.*/target
+.*/\.idea
+.idea/
+target/
+*.pyc
+*.log
+*.VSCodeCounter/
