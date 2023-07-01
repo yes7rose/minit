@@ -1,0 +1,22 @@
+需要指定配置文件: must have config file
+服务监听地址-端口: server listening on
+初始化日志目录失败: init log dir failed
+地址或端口解析错误: parsing address and port failed
+读取客户端crt文件失败: read client crt file failed
+创建日志目录失败: init log dir failed
+开始初始化管理数据库: init manage db
+添加映像规则完成: add view rules finished
+初始化根用户完成: init root user finished
+读取定义文件完成: read definition file finished
+开始添加映像规则: add view rules
+开始读取定义文件: start reading definition file
+开始插入初始数据: start insert initial data
+需要指定项目配置文件、定义文件或者包含定义文件的目录: must have config file or definition file or directory
+创建管理集合失败，集合可能已存在: create manage collection failed, collection may exist
+插入初始数据结束: insert initial data finished
+开始初始化根用户: init root user
+初始化设置文件路径失败: init config file path failed
+初始化管理数据库完成: init manage db finished
+连接到数据库: connect to db
+
+

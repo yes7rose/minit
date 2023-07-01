@@ -1,6 +1,6 @@
 [package]
 name = "minit"
-version = "0.4.0"
+version = "0.4.2"
 authors = ["闫刚 <7470718@qq.com>"]
 edition = "2021"
 
@@ -26,4 +26,6 @@ dependencies_sync = { path = "../cashmere_core/dependencies_sync", features = [
   "chrono",
   "tokio",
   "clap",
+  "rust-i18n",
+  "once_cell",
 ] }
