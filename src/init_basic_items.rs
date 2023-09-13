@@ -1,7 +1,9 @@
+use dependencies_sync::bson::doc;
 use dependencies_sync::toml::map::Map;
 use dependencies_sync::toml::Value;
 
 use define_utils as utils;
+use manage_define::general_field_ids::ID_FIELD_ID;
 
 pub async fn init_basic_items(
     tomls: &Vec<Map<String, Value>>,
@@ -15,6 +17,13 @@ pub async fn init_basic_items(
         if let Some(items) = utils::get_init_items(map) {
             let length = items.len();
             for mut item in items {
+                // 检查是否重复
+                let id = item.get_str(ID_FIELD_ID.to_string()).unwrap();
+                let query_doc = doc!(ID_FIELD_ID.to_string(): id.to_string());
+                if entity::entity_exists(&manage_id.to_string(), &query_doc).await{
+                    continue;
+                };
+
                 if let Ok(_r) =
                     entity::insert_entity(&manage_id.to_string(), &mut item, root_id, root_group_id)
                         .await
