@@ -20,17 +20,15 @@ pub async fn init_basic_items(
                 // 检查是否重复
                 let id = item.get_str(ID_FIELD_ID.to_string()).unwrap();
                 let query_doc = doc!(ID_FIELD_ID.to_string(): id.to_string());
-                if entity::entity_exists(&manage_id.to_string(), &query_doc).await{
+                if entity::entity_exists(&manage_id.to_string(), &query_doc).await {
                     continue;
                 };
 
-                if let Ok(_r) =
+                if let Err(_r) =
                     entity::insert_entity(&manage_id.to_string(), &mut item, root_id, root_group_id)
                         .await
                 {
-                    continue;
-                } else {
-                    println!("插入记录失败, {}", item);
+                    println!("插入记录失败, {}", _r.details());
                 }
             }
             println!("\t\t插入数据个数: {}", length);
