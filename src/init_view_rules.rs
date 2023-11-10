@@ -1,6 +1,7 @@
 use dependencies_sync::bson::{self, doc};
 use dependencies_sync::toml::map::Map;
 use dependencies_sync::toml::Value;
+use dependencies_sync::log;
 
 use manage_define::field_ids::*;
 use manage_define::general_field_ids::*;
@@ -15,10 +16,10 @@ pub async fn init_view_rules(
 ) {
     for map in tomls {
         let rule_id = utils::get_id(map).unwrap();
-        let rule_name = match utils::get_name(map) {
+        let rule_name = match utils::get_name_map(map) {
             Some(m) => m,
             None => {
-                println!("取得映像规则名失败: {} ", rule_id);
+                log::error!("取得映像规则名失败: {} ", rule_id);
                 continue;
             }
         };

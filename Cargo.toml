@@ -1,6 +1,6 @@
 [package]
 name = "minit"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["闫刚 <7470718@qq.com>"]
 edition = "2021"
 
@@ -15,6 +15,7 @@ database = { path = "../cashmere_core/database" }
 configs = { path = "../cashmere_core/configs" }
 auth = { path = "../cashmere_core/auth" }
 cash_result = { path = "../cashmere_core/cash_result" }
+server_utils = { path = "../cashmere_core/server_utils" }
 
 account_module = { path = "../account_module" }
 
@@ -26,6 +27,8 @@ dependencies_sync = { path = "../cashmere_core/dependencies_sync", features = [
   "chrono",
   "tokio",
   "clap",
+  "log",
   "rust-i18n",
   "once_cell",
+  "simplelog",
 ] }
