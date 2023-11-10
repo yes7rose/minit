@@ -1,4 +1,5 @@
 use dependencies_sync::bson::Document;
+use dependencies_sync::log;
 
 use auth::jwt::hash_password;
 use manage_define::general_field_ids::ID_FIELD_ID;
@@ -27,7 +28,7 @@ pub async fn init_root_password(root_id: &String, passswd: &Option<String>) {
     )
     .await
     {
-        Err(r) => println!("{}", r.details()),
+        Err(r) => log::error!("{}", r.details()),
         _ => {}
     };
 }
