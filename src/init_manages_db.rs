@@ -84,6 +84,7 @@ pub async fn init_manages_db(
             };
         } else {
             log::warn!("\t{}: {} {} ", t!("管理实体已经存在"), manage_id, manage_name);
+            continue;
         }
 
         // 管理数据库集合已经存在，跳过

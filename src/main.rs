@@ -86,9 +86,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let log_level = LevelFilter::from_str(server_configs.log_level.as_str()).unwrap();
 
     let log_config = simplelog::ConfigBuilder::new()
-        .set_time_format_rfc3339()
-        .set_time_offset_to_local()
-        .unwrap()
+        // .set_time_format_rfc3339()
+        // .set_time_offset_to_local()
+        // .unwrap()
         .build();
     CombinedLogger::init(vec![
         TermLogger::new(
@@ -106,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .unwrap();
 
     // 数据库检查
-    let db = database::get_cashmere_database().await;
+    let db = database::get_database().await;
     let db_name = db.name();
     log::info!("{}: {}", t!("连接到数据库"), db_name);
 
