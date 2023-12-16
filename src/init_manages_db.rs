@@ -31,10 +31,6 @@ pub async fn init_manages_db(
             Some(s) => s,
             None => continue,
         };
-        let is_searchable = match utils::get_is_searchable(manage_id.as_str(), map) {
-            Some(s) => s,
-            None => continue,
-        };
 
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
 
@@ -43,7 +39,6 @@ pub async fn init_manages_db(
             ID_FIELD_ID.to_string(): manage_id.clone(),
             NAME_MAP_FIELD_ID.to_string(): manage_name.clone(),
             MANAGES_SCHEMA_FIELD_ID.to_string(): manage_schema,
-            IS_SEARCHABLE_FIELD_ID.to_string(): is_searchable,
         };
 
         // 添加管理实体

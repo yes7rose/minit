@@ -133,21 +133,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root_password = arg_matches.value_of("rpasswd").map(|p| p.to_string());
 
     // 1. 创建管理集合
-    if !db.list_collection_names(None).await.unwrap().contains(&MANAGES_MANAGE_ID.to_string()){
+    if !db
+        .list_collection_names(None)
+        .await
+        .unwrap()
+        .contains(&MANAGES_MANAGE_ID.to_string())
+    {
         log::info!("------{}-----\n", t!("开始创建管理集合"));
         match db
             .create_collection(&MANAGES_MANAGE_ID.to_string(), None)
             .await
         {
             Err(e) => {
-                log::error!(
-                "{}: {} {:?}",
-                t!("创建管理集合失败"),
-                MANAGES_MANAGE_ID,
-                e
-            );
+                log::error!("{}: {} {:?}", t!("创建管理集合失败"), MANAGES_MANAGE_ID, e);
                 panic!("{}", t!("创建管理集合失败"));
-            },
+            }
             _ => log::info!("创建管理集合成功: {}", MANAGES_MANAGE_ID),
         }
     }
@@ -167,9 +167,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("------{}-------\n", t!("添加映像规则完成"));
 
     // 初始化根用户密码
-    log::info!("------{}-------", t!("开始初始化根用户"));
-    init_root_password::init_root_password(&root_id, &root_password).await;
-    log::info!("------{}-------\n", t!("初始化根用户完成"));
+    if root_password.is_some() && root_password.as_ref().unwrap().len() > 0 {
+        log::info!("------{}-------", t!("开始初始化根用户口令"));
+        init_root_password::init_root_password(&root_id, &root_password).await;
+        log::info!("------{}-------\n", t!("初始化根用户完成"));
+    }
 
     // tokio::join!(init_manages_db, init_event_types, init_basic_items, init_view_rules, init_root_password);
 

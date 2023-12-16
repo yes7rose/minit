@@ -7,6 +7,7 @@ use manage_define::general_field_ids::ID_FIELD_ID;
 use account_module::ids_codes::manage_ids::ACCOUNTS_MANAGE_ID;
 use account_module::ids_codes::field_ids::ACCOUNTS_PASSWORD_FIELD_ID;
 
+/// 初始化根口令
 pub async fn init_root_password(root_id: &String, passswd: &Option<String>) {
     let hashed_passwd = if passswd.is_some() {
         hash_password(passswd.as_ref().unwrap()).await.unwrap()

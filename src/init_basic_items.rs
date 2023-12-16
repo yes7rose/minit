@@ -20,7 +20,7 @@ pub async fn init_basic_items(
             for mut item in items {
                 // 检查是否重复
                 let id = item.get_str(ID_FIELD_ID.to_string()).unwrap();
-                let query_doc = doc!(ID_FIELD_ID.to_string(): id.to_string());
+                let query_doc = doc!(ID_FIELD_ID.to_string(): id);
                 if entity::entity_exists(&manage_id.to_string(), &query_doc).await.is_some() {
                     continue;
                 };
