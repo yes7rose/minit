@@ -31,6 +31,10 @@ pub async fn init_manages_db(
             Some(s) => s,
             None => continue,
         };
+        let hard_coded = match utils::get_hard_coded(map) {
+            Some(h) => h,
+            None => false,
+        };
 
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
 
@@ -39,6 +43,7 @@ pub async fn init_manages_db(
             ID_FIELD_ID.to_string(): manage_id.clone(),
             NAME_MAP_FIELD_ID.to_string(): manage_name.clone(),
             MANAGES_SCHEMA_FIELD_ID.to_string(): manage_schema,
+            MANAGES_HARD_CODED_FIELD_ID.to_string(): hard_coded,
         };
 
         // 添加管理实体
