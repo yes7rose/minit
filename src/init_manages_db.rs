@@ -99,5 +99,7 @@ pub async fn init_manages_db(
             }
             _ => log::info!("\t{}: {}", t!("创建管理集合成功"), manage_id),
         }
+        
+        // TODO: 创建索引
     }
 }
