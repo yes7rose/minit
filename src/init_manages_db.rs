@@ -14,8 +14,8 @@ use define_utils as utils;
 pub async fn init_manages_db(
     db: &Database,
     tomls: &Vec<Map<String, Value>>,
-    root_id: &String,
-    root_group_id: &String,
+    root_id: &str,
+    root_group_id: &str,
 ) {
     for map in tomls {
         let manage_id = match utils::get_id(map) {
@@ -31,10 +31,7 @@ pub async fn init_manages_db(
             Some(s) => s,
             None => continue,
         };
-        let hard_coded = match utils::get_hard_coded(map) {
-            Some(h) => h,
-            None => false,
-        };
+        let hard_coded = utils::get_hard_coded(map).unwrap_or(false);
 
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
 
@@ -55,7 +52,7 @@ pub async fn init_manages_db(
         .is_none()
         {
             match entity::insert_entity(
-                &MANAGES_MANAGE_ID.to_string(),
+                MANAGES_MANAGE_ID,
                 &mut manage_doc,
                 root_id,
                 root_group_id,
@@ -88,7 +85,7 @@ pub async fn init_manages_db(
         }
 
         // 管理数据库集合已经存在，跳过
-        if manage_id == MANAGES_MANAGE_ID.to_string() {
+        if manage_id == *MANAGES_MANAGE_ID {
             continue;
         }
 

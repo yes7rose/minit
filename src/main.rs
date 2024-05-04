@@ -167,9 +167,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("------{}-------\n", t!("添加映像规则完成"));
 
     // 初始化根用户密码
-    if root_password.is_some() && root_password.as_ref().unwrap().len() > 0 {
+    if root_password.is_some() && !root_password.as_ref().unwrap().is_empty() {
         log::info!("------{}-------", t!("开始初始化根用户口令"));
-        init_root_password::init_root_password(&root_id, &root_password).await;
+        init_root_password::init_root_password(root_id, &root_password).await;
         log::info!("------{}-------\n", t!("初始化根用户完成"));
     }
 

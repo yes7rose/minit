@@ -11,8 +11,8 @@ use define_utils as utils;
 
 pub async fn init_view_rules(
     tomls: &Vec<Map<String, Value>>,
-    root_id: &String,
-    root_group_id: &String,
+    root_id: &str,
+    root_group_id: &str,
 ) {
     for map in tomls {
         let rule_id = utils::get_id(map).unwrap();
@@ -39,7 +39,7 @@ pub async fn init_view_rules(
         };
 
         match entity::insert_entity(
-            &VIEW_RULES_MANAGE_ID.to_string(),
+            VIEW_RULES_MANAGE_ID,
             &mut rulse_doc,
             root_id,
             root_group_id,
