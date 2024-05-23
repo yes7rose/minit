@@ -128,8 +128,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("------{}-----\n\n", t!("读取定义文件完成"));
 
     // 使用root用户和root组初始化管理数据库
-    let root_id = &"8610000000000".to_string();
-    let root_group_id = &"10000".to_string();
+    let root_id = &server_configs.root_id;
+    let root_group_id = &server_configs.admin_group;
     let root_password = arg_matches.value_of("rpasswd").map(|p| p.to_string());
 
     // 1. 创建管理集合
