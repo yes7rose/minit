@@ -10,7 +10,7 @@ use account_module::ids_codes::field_ids::ACCOUNTS_PASSWORD_FIELD_ID;
 
 /// zh: 初始化根口令
 /// en: Initialize the root password
-pub async fn init_root_password(root_id: &str, passswd: &Option<String>) {
+pub async fn init_root_password(root_id: &str, passswd: Option<&String>) {
     let hashed_passwd = if passswd.is_some() {
         hash_password(passswd.as_ref().unwrap()).await.unwrap()
     } else {
