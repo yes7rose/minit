@@ -36,7 +36,6 @@ pub async fn init_manages_db(
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
 
         let mut manage_doc = doc! {
-            "_id": manage_id.clone(),
             ID_FIELD_ID.to_string(): manage_id.clone(),
             NAME_MAP_FIELD_ID.to_string(): manage_name.clone(),
             MANAGES_SCHEMA_FIELD_ID.to_string(): manage_schema,
