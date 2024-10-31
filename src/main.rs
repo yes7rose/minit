@@ -18,6 +18,7 @@ mod init_basic_items;
 mod init_manages_db;
 mod init_root_password;
 mod init_view_rules;
+mod init_indexes;
 
 use dependencies_sync::rust_i18n::{self, i18n, t};
 i18n!("locales");
@@ -119,7 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     // 添加目录
     if let Some(path) = arg_matches.value_of("directory") {
-        let mut tomls = utils::get_toml_files_of_dir(&path.to_string()).unwrap();
+        let mut tomls = utils::get_toml_files_of_dir(path).unwrap();
         toml_pathes.append(&mut tomls);
     }
 
@@ -134,14 +135,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 1. 创建管理集合
     if !db
-        .list_collection_names(None)
+        .list_collection_names()
         .await
         .unwrap()
         .contains(&MANAGES_MANAGE_ID.to_string())
     {
         log::info!("------{}-----\n", t!("开始创建管理集合"));
         match db
-            .create_collection(&MANAGES_MANAGE_ID.to_string(), None)
+            .create_collection(MANAGES_MANAGE_ID.to_string())
             .await
         {
             Err(e) => {

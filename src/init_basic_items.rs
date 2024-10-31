@@ -1,5 +1,5 @@
 use dependencies_sync::bson::doc;
-use dependencies_sync::log;
+use dependencies_sync::log::{self, warn};
 use dependencies_sync::rust_i18n::{self, t};
 use dependencies_sync::toml::map::Map;
 use dependencies_sync::toml::Value;
@@ -21,9 +21,18 @@ pub async fn init_basic_items(tomls: &Vec<Map<String, Value>>, root_id: &str, ro
                 } else {
                     panic!("{}: {}", t!("取得实体id失败"), manage_id);
                 };
+
                 let query_doc = doc!(ID_FIELD_ID.to_string(): id);
+
                 if entity::entity_exists(manage_id, &query_doc).await.is_some() {
-                    continue;
+                    warn!(
+                        "{}: {}, {}-{}",
+                        t!("实体已存在"),
+                        t!("删除实体"),
+                        manage_id,
+                        id
+                    );
+                    let _ = entity::delete_entity(manage_id, &query_doc).await;
                 };
 
                 if let Err(_r) =

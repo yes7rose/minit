@@ -11,6 +11,8 @@ use manage_define::manage_ids::*;
 
 use define_utils as utils;
 
+use crate::init_indexes::init_indexes;
+
 pub async fn init_manages_db(
     db: &Database,
     tomls: &Vec<Map<String, Value>>,
@@ -32,13 +34,14 @@ pub async fn init_manages_db(
             None => continue,
         };
         let hard_coded = utils::get_hard_coded(map).unwrap_or(false);
+        let indexes = utils::get_indexes(map);
 
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
 
         let mut manage_doc = doc! {
             ID_FIELD_ID.to_string(): manage_id.clone(),
             NAME_MAP_FIELD_ID.to_string(): manage_name.clone(),
-            MANAGES_SCHEMA_FIELD_ID.to_string(): manage_schema,
+            MANAGES_SCHEMA_FIELD_ID.to_string(): manage_schema.clone(),
             MANAGES_HARD_CODED_FIELD_ID.to_string(): hard_coded,
         };
 
@@ -50,13 +53,8 @@ pub async fn init_manages_db(
         .await
         .is_none()
         {
-            match entity::insert_entity(
-                MANAGES_MANAGE_ID,
-                &mut manage_doc,
-                root_id,
-                root_group_id,
-            )
-            .await
+            match entity::insert_entity(MANAGES_MANAGE_ID, &mut manage_doc, root_id, root_group_id)
+                .await
             {
                 Ok(r) => {
                     log::info!(
@@ -79,7 +77,12 @@ pub async fn init_manages_db(
                 }
             };
         } else {
-            log::warn!("\t{}: {} {} ", t!("管理实体已经存在"), manage_id, manage_name);
+            log::warn!(
+                "\t{}: {} {} ",
+                t!("管理实体已经存在"),
+                manage_id,
+                manage_name
+            );
             continue;
         }
 
@@ -89,13 +92,17 @@ pub async fn init_manages_db(
         }
 
         // 创建集合
-        match db.create_collection(&manage_id.clone(), None).await {
+        match db.create_collection(manage_id.clone()).await {
             Err(e) => {
                 panic!("\t{}: {} {:?}", t!("创建管理集合失败"), manage_id, e)
             }
-            _ => log::info!("\t{}: {}", t!("创建管理集合成功"), manage_id),
+            Ok(_) => {
+                log::info!("\t{}: {}", t!("创建管理集合成功"), manage_id);
+                log::info!("\t{}: {}", t!("开始创建管理索引"), manage_id);
+                // 创建索引
+                init_indexes(db, &manage_id, &indexes).await;
+            }
         }
-        
-        // TODO: 创建索引
+
     }
 }

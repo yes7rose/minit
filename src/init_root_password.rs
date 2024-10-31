@@ -14,7 +14,7 @@ pub async fn init_root_password(root_id: &str, passswd: Option<&String>) {
     let hashed_passwd = if passswd.is_some() {
         hash_password(passswd.as_ref().unwrap()).await.unwrap()
     } else {
-        hash_password(&"root".to_string()).await.unwrap()
+        hash_password("root").await.unwrap()
     };
 
     let mut query_doc = Document::new();
