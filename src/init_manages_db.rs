@@ -1,5 +1,8 @@
+use std::time::Duration;
+
 use dependencies_sync::bson::doc;
 use dependencies_sync::log;
+use dependencies_sync::mongodb::options::{CreateCollectionOptions, TimeseriesOptions};
 use dependencies_sync::mongodb::Database;
 use dependencies_sync::rust_i18n::{self, t};
 use dependencies_sync::toml::map::Map;
@@ -7,6 +10,7 @@ use dependencies_sync::toml::Value;
 
 use manage_define::field_ids::*;
 use manage_define::general_field_ids::*;
+use manage_define::hard_coded_field_names::{TIME_SERIES_EXPIRED_SECONDS_FIELD_NAME, TIME_SERIES_FIELD_NAME, TIME_SERIES_META_FIELD_NAME};
 use manage_define::manage_ids::*;
 
 use define_utils as utils;
@@ -34,6 +38,7 @@ pub async fn init_manages_db(
             None => continue,
         };
         let hard_coded = utils::get_hard_coded(map).unwrap_or(false);
+        let time_series = utils::get_time_series(map);
         let indexes = utils::get_indexes(map);
 
         log::info!("\t{}: {} {}", t!("开始创建管理"), manage_id, manage_name);
@@ -92,17 +97,67 @@ pub async fn init_manages_db(
         }
 
         // 创建集合
-        match db.create_collection(manage_id.clone()).await {
-            Err(e) => {
-                panic!("\t{}: {} {:?}", t!("创建管理集合失败"), manage_id, e)
+        if time_series.is_some() {
+            log::info!("\t{}: {}", t!("创建时间序列集合"), manage_id);
+
+            let time_series = if let Some(time_series) = time_series{
+                time_series
+            } else {
+                log::warn!("\t{}: {}", t!("时间序列配置错误"), manage_id);
+                continue
+            };
+            
+            let meta_field = if let Ok(r)  =time_series.get_str(TIME_SERIES_META_FIELD_NAME){
+                r.to_string()
+            }else {
+                log::warn!("\t{}: {}", t!("时间序列配置错误"), manage_id);
+                continue
+            };
+            
+            let expired_seconds = if let Ok(r)  =time_series.get_i64(TIME_SERIES_EXPIRED_SECONDS_FIELD_NAME){
+                r as u64
+            } else {
+                log::warn!("\t{}: {}", t!("时间序列配置错误"), manage_id);
+                continue
+            };
+
+            let time_series_options = TimeseriesOptions::builder()
+                .time_field(CREATE_TIMESTAMP_FIELD_ID.to_string())
+                .meta_field(
+                    meta_field
+                )
+                .build();
+
+            let options = CreateCollectionOptions::builder()
+                .timeseries(time_series_options)
+                .expire_after_seconds(Duration::from_secs(expired_seconds))
+                .build();
+
+            match db
+                .create_collection(manage_id.clone())
+                .with_options(options)
+                .await
+            {
+                Err(e) => {
+                    panic!("\t{}: {} {:?}", t!("创建时间序列集合失败"), manage_id, e)
+                }
+                Ok(_) => {
+                    log::info!("\t{}: {}", t!("创建时间序列集合成功"), manage_id);
+                }
             }
-            Ok(_) => {
-                log::info!("\t{}: {}", t!("创建管理集合成功"), manage_id);
-                log::info!("\t{}: {}", t!("开始创建管理索引"), manage_id);
-                // 创建索引
-                init_indexes(db, &manage_id, &indexes).await;
+        } else {
+            match db.create_collection(manage_id.clone()).await {
+                Err(e) => {
+                    panic!("\t{}: {} {:?}", t!("创建管理集合失败"), manage_id, e)
+                }
+                Ok(_) => {
+                    log::info!("\t{}: {}", t!("创建管理集合成功"), manage_id);
+
+                    log::info!("\t{}: {}", t!("开始创建管理索引"), manage_id);
+                    // 创建索引
+                    init_indexes(db, &manage_id, &indexes).await;
+                }
             }
         }
-
     }
 }
