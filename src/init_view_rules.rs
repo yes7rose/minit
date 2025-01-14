@@ -33,6 +33,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
         // 管理级
         for (group, rule) in view_rules.manage {
             let mut rule_doc = Document::new();
+            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
             rule_doc.insert(
                 VIEW_RULES_LEVEL_FIELD_ID.to_string(),
                 ViewRuleLevel::VlManage as i32,
@@ -41,8 +42,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
                 VIEW_RULES_SUBJECT_MANAGE_FIELD_ID.to_string(),
                 manage_id.clone(),
             );
-            rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), manage_id.clone());
-            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
+            // rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), manage_id.clone());
             rule_doc.insert(
                 VIEW_RULES_READ_RULE_FIELD_ID.to_string(),
                 rule.read_rule as i32,
@@ -81,6 +81,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
         // 集合级
         for (group, rule) in view_rules.collection {
             let mut rule_doc = Document::new();
+            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
             rule_doc.insert(
                 VIEW_RULES_LEVEL_FIELD_ID.to_string(),
                 ViewRuleLevel::VlCollection as i32,
@@ -89,8 +90,6 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
                 VIEW_RULES_SUBJECT_MANAGE_FIELD_ID.to_string(),
                 manage_id.clone(),
             );
-            rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), manage_id.clone());
-            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
             rule_doc.insert(
                 VIEW_RULES_READ_RULE_FIELD_ID.to_string(),
                 rule.read_rule as i32,
@@ -129,6 +128,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
         // 实体集
         for (group, rule) in view_rules.entity {
             let mut rule_doc = Document::new();
+            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
             rule_doc.insert(
                 VIEW_RULES_LEVEL_FIELD_ID.to_string(),
                 ViewRuleLevel::VlEntity as i32,
@@ -137,8 +137,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
                 VIEW_RULES_SUBJECT_MANAGE_FIELD_ID.to_string(),
                 manage_id.clone(),
             );
-            rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), manage_id.clone());
-            rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
+            // rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), manage_id.clone());
             rule_doc.insert(
                 VIEW_RULES_READ_RULE_FIELD_ID.to_string(),
                 rule.read_rule as i32,
@@ -178,6 +177,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
         for (field, rules) in view_rules.fields {
             for (group, rule) in rules {
                 let mut rule_doc = Document::new();
+                rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
                 rule_doc.insert(
                     VIEW_RULES_LEVEL_FIELD_ID.to_string(),
                     ViewRuleLevel::VlField as i32,
@@ -187,7 +187,6 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
                     manage_id.clone(),
                 );
                 rule_doc.insert(VIEW_RULES_SUBJECT_FIELD_ID.to_string(), field.clone());
-                rule_doc.insert(VIEW_RULES_GROUP_FIELD_ID.to_string(), group);
                 rule_doc.insert(
                     VIEW_RULES_READ_RULE_FIELD_ID.to_string(),
                     rule.read_rule as i32,
@@ -224,6 +223,7 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
             }
         }
 
+        let mut batch_docs: Vec<Document> = Vec::new();
         for mut doc in docs {
             let id = if let Some(i) = get_new_entity_id(VIEW_RULES_MANAGE_ID, root_id).await {
                 i
@@ -232,12 +232,16 @@ pub async fn init_view_rules(tomls: &Vec<Map<String, Value>>, root_id: &str, roo
                 continue;
             };
             doc.insert(ID_FIELD_ID.to_string(), id.to_string());
-
-            match entity::insert_entity(VIEW_RULES_MANAGE_ID, &mut doc, root_id, root_group_id)
-                .await
-            {
-                Ok(_r) => continue,
-                Err(e) => println!("{} {}", e.operation(), e.details()),
+            batch_docs.push(doc);
+        }
+        
+        // 批量添加到数据库
+        match entity::batch_insert_entities(VIEW_RULES_MANAGE_ID, &mut batch_docs, root_id, root_group_id).await {
+            Ok(r) => {
+                log::info!("{}: {manage_id}, {r} 条映像规则", t!("初始化视图规则成功"));
+            }
+            Err(e) => {
+                log::error!("{}: {}", t!("初始化视图规则失败"), VIEW_RULES_MANAGE_ID);
             }
         }
     }
